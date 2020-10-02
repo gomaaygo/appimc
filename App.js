@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Text, Button} from 'react-native';
+import {Text, Button, StyleSheet} from 'react-native';
 import styled from 'styled-components';
 
 const Page = styled.SafeAreaView`
@@ -61,11 +61,62 @@ const Btn = styled.View`
   height: 100px;
 `;
 
-const AreaResult = styled.View`
-  background-color: #f2f4;
+const LabelItem = styled.Text`
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 5px;
 `;
 
+const Item = styled.Text`
+  color: #FFFFFF;
+  font-size: 24px;
+  margin-top: -9px;
+`;
+
+const AreaResult  = styled.View`
+  align-items: center;
+  margin-top: 70px;
+  margin-bottom: 80px;
+  padding-left: 95px;
+  padding-right: 95px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+`;
+
+const styles = StyleSheet.create({
+  result_good: {
+    backgroundColor: '#2A9C43'
+  },
+  result_danger: {
+    backgroundColor: '#C23838'
+  }
+});
+
 const App = () => {
+  const [weight, updateWeight] = useState("");
+  const [height, updateHeight] = useState("");
+  const [imc, updateImc] = useState("");
+  const [classification, updateClassification] = useState("");
+  const [obesity, updateObesity] = useState("");
+  const [status, updateStatus] = useState("");
+
+  const calc_imc = () => {
+    updateImc(weight/(height*height));
+    updateStatus("False");
+    if(imc < 18.5){
+      return updateClassification("magreza"), updateObesity("0");
+    }else if(imc >= 18.5 && imc <= 24.9){
+      return updateClassification("normal"), updateObesity("0"), updateStatus("True");
+    }else if(imc >= 25.0 && imc <= 29.9){
+      return updateClassification("sobrepeso"), updateObesity("1");
+    }else if(imc >= 30.0 && imc <= 39.9){
+      return updateClassification("obesidade"), updateObesity("2");
+    }else{
+      return updateClassification("obesidade grave"), updateObesity("3");
+    }
+  };
+
   return (
     <Page>
       <Head>
@@ -75,20 +126,37 @@ const App = () => {
         <Form>
           <Div>
             <Label>Peso:</Label>
-            <Input />
+            <Input value={weight} onChangeText={(weight) => updateWeight(weight)} keyboardType="numeric" />
           </Div>
           <Div>
             <Label>Altura:</Label>
-            <Input />
+            <Input value={height} onChangeText={(height) => updateHeight(height)} keyboardType="numeric" />
           </Div>
         </Form>
         <Btn>
-          <Button color="#3A3434" title="C A L C U L A R">
+          <Button color="#3A3434" title="C A L C U L A R" onPress={calc_imc}>
           </Button>
         </Btn>
-        <AreaResult>
-        <Text>Area de Resultado</Text>
-        </AreaResult>
+        {imc > "" && status == "True" &&
+          <AreaResult style={styles.result_good}>
+            <LabelItem>IMC</LabelItem>
+            <Item>{imc.toFixed(2)}</Item>
+            <LabelItem>CLASSIFICAÇÃO</LabelItem>
+            <Item>{classification}</Item>
+            <LabelItem>obesidade (GRAU)</LabelItem>
+            <Item>{obesity}</Item>
+          </AreaResult>
+        }
+        {imc > "" && status == "False" &&
+          <AreaResult style={styles.result_danger}>
+            <LabelItem>IMC</LabelItem>
+            <Item>{imc.toFixed(2)}</Item>
+            <LabelItem>CLASSIFICAÇÃO</LabelItem>
+            <Item>{classification}</Item>
+            <LabelItem>obesidade (GRAU)</LabelItem>
+            <Item>{obesity}</Item>
+          </AreaResult>
+        }
     </Page> 
   );
 };
